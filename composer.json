@@ -1,0 +1,106 @@
+{
+    "name": "dsjp/test",
+    "description": "A one-stop-shop for digital skills and jobs in the EU.",
+    "type": "project",
+    "license": "EUPL-1.2",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "php": ">=7.3",
+        "composer/installers": "^1.5",
+        "drupal/core": "^9.3",
+        "drupal/core-composer-scaffold": "^9.1",
+        "drush/drush": "^10.0",
+        "openeuropa/oe_profile": "^0.5"
+    },
+    "require-dev": {
+        "drupal/core-dev": "^9.3",
+        "drupal/devel": "^4.0",
+        "drupal/drupal-extension": "~4.0",
+        "drupal/masquerade": "^2.0@beta",
+        "drupal/purge_control": "^1.0",
+        "drupal/stage_file_proxy": "^1.1",
+        "ec-europa/toolkit": "^8.6.10",
+        "friendsoftwig/twigcs": ">=4"
+    },
+    "scripts": {
+      "drupal-scaffold": "DrupalComposer\\DrupalScaffold\\Plugin::scaffold"
+    },
+    "repositories": {
+        "drupal": {
+            "type": "composer",
+            "url": "https://packages.drupal.org/8"
+        },
+        "assets": {
+          "type": "composer",
+          "url": "https://asset-packagist.org"
+        }
+    },
+    "extra": {
+        "artifacts": {
+            "openeuropa/oe_theme": {
+                "dist": {
+                  "url": "https://github.com/{name}/releases/download/{pretty-version}/{project-name}-{pretty-version}.zip",
+                  "type": "zip"
+                }
+            }
+        },
+        "composer-exit-on-patch-failure": false,
+        "enable-patching": true,
+        "installer-types": [
+          "bower-asset",
+          "npm-asset"
+        ],
+        "installer-paths": {
+            "web/core": [
+                "type:drupal-core"
+            ],
+            "web/libraries/{$name}": [
+                "type:drupal-library",
+                "type:bower-asset",
+                "type:npm-asset"
+            ],
+            "web/modules/contrib/{$name}": [
+                "type:drupal-module"
+            ],
+            "web/modules/custom/{$name}": [
+                "type:drupal-custom-module"
+            ],
+            "web/profiles/contrib/{$name}": [
+                "type:drupal-profile"
+            ],
+            "web/profiles/custom/{$name}": [
+                "type:drupal-custom-profile"
+            ],
+            "web/themes/contrib/{$name}": [
+                "type:drupal-theme"
+            ],
+            "web/themes/custom/{$name}": [
+                "type:drupal-custom-theme"
+            ]
+        },
+        "drupal-scaffold": {
+          "locations": {
+            "web-root": "./web"
+          }
+        }
+    },
+    "conflict": {
+        "drupal/drupal": "*"
+    },
+    "config": {
+        "sort-packages": true,
+        "discard-changes": true,
+        "process-timeout": 0,
+        "allow-plugins": {
+            "cweagans/composer-patches": true,
+            "composer/installers": true,
+            "phpro/grumphp": true,
+            "openeuropa/composer-artifacts": true,
+            "oomphinc/composer-installers-extender": true,
+            "drupal-composer/drupal-scaffold": true,
+            "drupal/core-composer-scaffold": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}

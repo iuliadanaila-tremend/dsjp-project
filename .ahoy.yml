@@ -1,0 +1,143 @@
+ahoyapi: v2
+commands:
+
+  up:
+    usage: Start the docker containers.
+    cmd: |
+      docker-compose up -d
+
+  down:
+    usage: Stop the docker containers.
+    cmd: |
+      docker-compose down
+
+  reboot:
+    usage: Stop and start the containers.
+    cmd: |
+      ahoy down && ahoy up
+  
+  install-clean: 
+    usage: Install clean
+    cmd: |
+      ahoy composer install
+      ahoy runner toolkit:build-dev
+      ahoy runner toolkit:install-clean
+
+  install-clone: 
+    usage: Install clean
+    cmd: |
+      ahoy dump
+      ahoy clone
+  
+  dump: 
+    usage: Download ASDA dump
+    cmd: |
+      ahoy runner toolkit:download-dump --dumpfile dump.sql
+
+  clone:
+    usage: Install clone site.
+    cmd: |
+      ahoy composer install
+      ahoy runner toolkit:build-dev
+      ahoy runner toolkit:install-clone
+      
+  deploy:
+    usage: Run deploy
+    cmd: |
+      ahoy composer install
+      ahoy runner toolkit:build-dev
+      ahoy runner toolkit:run-deploy
+      
+  simulate:
+    usage: Simulate the pipeline.
+    cmd: |
+      ahoy composer install
+      ahoy runner toolkit:build-dev
+      ahoy runner toolkit:install-clean    
+      ahoy runner toolkit:test-behat
+      ahoy dump
+      ahoy runner toolkit:install-clone 
+      ahoy runner toolkit:test-behat
+
+  sniff: 
+    usage: Run static analysis.
+    cmd: |
+      ahoy analysis run
+
+  behat: 
+    usage: Run behat tests.
+    cmd: |
+      ahoy runner toolkit:test-behat
+
+  logs: 
+    usage: Display logs.
+    cmd: |
+      docker-compose logs -f
+#
+# Tools
+#
+  runphp:
+    usage: Run a command inside a running php container.
+    cmd: |
+      if [ -f "docker-compose.local.yml" ]; then
+        docker-compose -f docker-compose.local.yml exec -T web $@
+        else
+        docker-compose exec -T web $@
+      fi
+
+  runner:
+    usage: Run a Robo command.
+    cmd: |
+      ahoy runphp vendor/bin/run $@
+
+  analysis:
+    usage: Run a GrumPHP command.
+    cmd: |
+      ahoy runphp vendor/bin/grumphp $@
+
+  mysql:
+    usage: Run a Mysql command.
+    cmd: |
+      ahoy runphp mysql -h mysql -u root $@
+
+  mysql-create:
+    usage: Run a Mysql command.
+    cmd: |
+      docker-compose exec web mysql -h mysql -u root -e "drop database cybersecurity_atlas;"
+      docker-compose exec web mysql -h mysql -u root -e "create database cybersecurity_atlas;"
+
+  composer:
+    usage: Run a Composer command.
+    cmd: |
+      ahoy runphp composer $@
+
+  sh:
+    use: Get shell
+    cmd: |
+      ahoy runphp bash
+  
+  drush: 
+    use: Run drush command within the web container
+    cmd: |
+      . .env
+      ahoy runphp drush --uri=$DRUPAL_BASE_URL --root=. $@
+
+  d: 
+    use: Allias of drush command
+    cmd: |
+      ahoy drush $@
+
+  permissions:
+    use: Fix ownership and permissions
+    cmd: |
+      sudo chown ${USER}:${USER} ./* -R
+      chmod 666 sites/default/settings*
+      chmod a+wX sites/default/files -R
+
+  prune:
+    use: Remove dead brances.
+    cmd: |
+      git fetch origin --prune
+      git checkout master
+      git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -d
+    
