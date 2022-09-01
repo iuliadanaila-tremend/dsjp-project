@@ -1,72 +1,41 @@
 version: '2'
 services:
   web:
-    image: fpfis/httpd-php-dev:7.4
+    image: fpfis/httpd-php:8.1-dev
     working_dir: ${PWD}
     ports:
       - 8080:8080
     volumes:
-      # - nfsmount:/var/www/html # Mac Users with the nfsmount volume.
-      - ${PWD}:${PWD}
+      - ${PWD}:${PWD} # Non Mac users.
+      # - nfsmount:${PWD} # Mac Users with the nfsmount volume.
     environment:
+      DOCUMENT_ROOT: ${PWD}
       # ASDA CREDENTIALS
       # By leaving these variables empty Docker Compose will set them to their host values.
       ASDA_USER:
       ASDA_PASSWORD:
-      DOCUMENT_ROOT: ${PWD}
+      GITHUB_API_TOKEN:
+      GITLAB_API_TOKEN:
+      QA_API_BASIC_AUTH:
+      QA_WEBSITE_URL:
+      QA_WEBSITE_TOKEN:
+      ENV: "development"
       # XDEBUG CONFIGURATION
-      XDEBUG_CONFIG: "client_host=10.254.254.254 client_port=9000"
-      XDEBUG_MODE: "debug"
-      XDEBUG_SESSION: "PHPSTORM"
-      XDEBUG_SESSION_START: "PHPSTORM"
-      XDEBUG_TRIGGER: "PHPSTORM"
+      XDEBUG_CONFIG: remote_host=host.docker.internal remote_port=9003 remote_enable=1
       PHP_IDE_CONFIG: "serverName=Docker"
       # For Xdebug setup, run this command in the terminal:
       # For Mac users: sudo ifconfig en0 alias 10.254.254.254 255.255.255.0
       # For Linux users: sudo ip addr add 10.254.254.254/32 dev lo label lo:1
-      SMTP_SERVER: "mailhog"
-      SMTP_PORT: 1025
     env_file:
       - .env
-    depends_on:
-      - redis
 
   mysql:
     image: percona/percona-server:5.7
-    command: --max_allowed_packet=32505856
+    command: --innodb-log-file_size=2G --max-allowed-packet=1G --innodb-buffer-pool-size=512M --wait-timeout=31536000
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
     volumes:
       - mysql:/var/lib/mysql
-
-  # Spawn a Selenium server which also includes a VNC server on localhost:5900 (the password is "secret")
-  selenium:
-    image: selenium/standalone-chrome:3.14
-    environment:
-      - DISPLAY=:99
-      - SE_OPTS=-debug
-    ports:
-      - 5900:5900
-    expose:
-      - 4444
-
-  mongodb:
-    image: mongo:3.2
-    ports:
-      - "27017:27017"
-
-  mailhog:
-    image: mailhog/mailhog
-    restart: always
-    depends_on:
-      - mongodb
-    ports:
-      - 1025:1025
-      - 8025:8025
-    environment:
-      - "MH_STORAGE=mongodb"
-      - "MH_MONGO_URI=mongodb:27017"
-
   sparql:
     image: openeuropa/triple-store-dev
     environment:
@@ -74,40 +43,14 @@ services:
       - DBA_PASSWORD=dba
     ports:
       - "8890:8890"
-
-  solr:
-    image: wodby/solr:8-4.8.0
-    environment:
-      - SOLR_DEFAULT_CONFIG_SET="search_api_solr_4.1.9"
-
-  redis:
-    image: redis:3.2
-
-  varnish:
-    image: wodby/varnish:6.0-4.5.1
-    depends_on:
-      - web
-    environment:
-      VARNISH_SECRET: secret
-      VARNISH_BACKEND_HOST: web
-      VARNISH_BACKEND_PORT: 8080
-      VARNISH_CONFIG_PRESET: drupal
-      VARNISH_ALLOW_UNRESTRICTED_PURGE: 1
-      VARNISH_DRUPAL_PRESERVED_COOKIES: "SESS[a-z0-9]+|SSESS[a-z0-9]+|NO_CACHE+|Drupal.visitor.legal_hash+|Drupal.visitor.legal_id"
-    ports:
-      - 6081:6081
-
-#### Mac users: uncomment the "volumes" key to enable the NFS file sharing. You can find more information about Docker for Mac here: https://github.com/openeuropa/openeuropa/blob/master/docs/starting/tooling.md#using-docker-on-macos
-
-#volumes:
-#  nfsmount:
-#    driver: local
-#    driver_opts:
-#      type: nfs
-#      o: addr=host.docker.internal,rw,nolock,hard,nointr,nfsvers=3
-#      device: ":${PWD}/"
-
-#### End Mac users.
-
 volumes:
   mysql:
+
+  # Mac users: uncomment the "nfsmount" key to enable the NFS file sharing.
+  # @see https://github.com/openeuropa/documentation/blob/master/docs/development/tooling.md#using-docker-on-macos
+  # nfsmount:
+  #   driver: local
+  #   driver_opts:
+  #     type: nfs
+  #     o: addr=host.docker.internal,rw,nolock,hard,nointr,nfsvers=3
+  #     device: ":${PWD}/"
