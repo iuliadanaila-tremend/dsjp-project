@@ -1,6 +1,10 @@
 # Digital Skills and Jobs Platform sample install
 
 <p>A base project for DSJP project.</p>
+<p>This is a Composer-based installer for the DSJP profile distribution.
+
+This will create a DSJP sample site and install all the project's dependencies.
+</p>
 
 - [Subsite](#subsite)
   * [1. Development](#1-development)
@@ -63,22 +67,39 @@ ahoy
 ### 1.4 Installing the project
 
 ```bash
-# Run composer install in the web service.
+Request access to GitHub - iuliadanaila-tremend/dsjp-project
+
+Add SSH key to your Github account.
+
+Steps
+Clone repository
+
+
+git clone git@github.com:iuliadanaila-tremend/dsjp-project.git
+Run the installation
+
+
+docker-compose up -d
+
 docker-compose exec web composer install
-# Build your development instance of the website.
+
+Make sure the profile is installed:
+
+docker-compose exec web composer require digit/dsjp --update-with-dependencies
+
 docker-compose exec web ./vendor/bin/run toolkit:build-dev
-# Perform a clean installation of the website.
-docker-compose exec web ./vendor/bin/run toolkit:install-clean
-# Or alternatively perform a clean installation of the website in
-# development mode. This will automatically disable caching and enable
-# development modules like devel, devel_generate and kint.
-docker-compose exec web ./vendor/bin/run toolkit:install-clean-dev
-# Perform a clone installation with production data.
-docker-compose exec web ./vendor/bin/run toolkit:install-clone
-# Or alternatively perform a clone installation with production data in
-# development mode. This will automatically disable caching and enable
-# development modules like devel, devel_generate and kint.
-docker-compose exec web ./vendor/bin/run toolkit:install-clone-dev
+
+docker-compose exec web ./vendor/bin/drush site-install dsjp_profile
+Start docker
+
+
+# Using default docker-compose.yml
+docker-compose up -d
+
+# (optional) Using a custom docker-compose.override.yml
+docker-compose -f docker-compose.override.yml up -d
+
+Done! Visit  http://test:8080/web
 ```
 
 Using default configuration your Drupal site will be available locally at:
