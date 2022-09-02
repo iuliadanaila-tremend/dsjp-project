@@ -72,12 +72,11 @@ Request access to GitHub - iuliadanaila-tremend/dsjp-project
 Add SSH key to your Github account.
 
 Steps
+
 Clone repository
-
-
 git clone git@github.com:iuliadanaila-tremend/dsjp-project.git
-Run the installation
 
+Run the installation
 
 docker-compose up -d
 
@@ -90,8 +89,8 @@ docker-compose exec web composer require digit/dsjp --update-with-dependencies
 docker-compose exec web ./vendor/bin/run toolkit:build-dev
 
 docker-compose exec web ./vendor/bin/drush site-install dsjp_profile
-Start docker
 
+Start docker
 
 # Using default docker-compose.yml
 docker-compose up -d
